@@ -1,0 +1,519 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<edmx:Edmx Version="3.0" xmlns:edmx="http://schemas.microsoft.com/ado/2009/11/edmx">
+	<!-- EF Runtime content -->
+	<edmx:Runtime>
+		<!-- SSDL content -->
+		<edmx:StorageModels>
+		<Schema Namespace="ZTP_TestModel.Store" Alias="Self" Provider="System.Data.SqlClient" ProviderManifestToken="2012" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+  <EntityContainer Name="ZTP_TestModelStoreContainer">
+    <EntitySet Name="Company" EntityType="ZTP_TestModel.Store.Company" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="GsmNumber" EntityType="ZTP_TestModel.Store.GsmNumber" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Install" EntityType="ZTP_TestModel.Store.Install" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Sites" EntityType="ZTP_TestModel.Store.Sites" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="sysdiagrams" EntityType="ZTP_TestModel.Store.sysdiagrams" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Device" EntityType="ZTP_TestModel.Store.Device" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Data" EntityType="ZTP_TestModel.Store.Data" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Registered_Router" EntityType="ZTP_TestModel.Store.Registered_Router" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="UserLogin" EntityType="ZTP_TestModel.Store.UserLogin" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="Basic_Setup" EntityType="ZTP_TestModel.Store.Basic_Setup" store:Type="Tables" Schema="dbo" />
+    <EntitySet Name="UserLogin45" EntityType="ZTP_TestModel.Store.UserLogin45" store:Type="Tables" Schema="dbo" />
+  </EntityContainer>
+  <EntityType Name="Company">
+    <Key>
+      <PropertyRef Name="Company_ID" />
+      <PropertyRef Name="Company_Name" />
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="Company_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Company_Name" Type="nvarchar" Nullable="false" MaxLength="255" />
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Company_Domain" Type="nvarchar" Nullable="false" MaxLength="255" />
+  </EntityType>
+  <EntityType Name="GsmNumber">
+    <Key>
+      <PropertyRef Name="GSM_No_ID" />
+    </Key>
+    <Property Name="GSM_No_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="GSM_No" Type="nvarchar" Nullable="false" MaxLength="255" />
+    <Property Name="Status" Type="int" Nullable="true" />
+    <Property Name="Company_ID" Type="int" Nullable="true" />
+  </EntityType>
+  <EntityType Name="Install">
+    <Key>
+      <PropertyRef Name="Install_ID" />
+    </Key>
+    <Property Name="Install_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Ricon_SN" Type="nvarchar" Nullable="true" MaxLength="50" />
+    <Property Name="GSM_No" Type="nvarchar" Nullable="true" MaxLength="50" />
+    <Property Name="Site_Name" Type="nvarchar" Nullable="true" MaxLength="50" />
+    <Property Name="WAN_ip" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="Username" Type="nvarchar" Nullable="true" MaxLength="50" />
+    <Property Name="Company_ID" Type="int" Nullable="true" />
+    <Property Name="Date_Time" Type="datetime" Nullable="true" />
+  </EntityType>
+  <EntityType Name="Sites">
+    <Key>
+      <PropertyRef Name="Site_ID" />
+    </Key>
+    <Property Name="Site_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Site_Name" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="Company_ID" Type="int" Nullable="true" />
+    <Property Name="Status" Type="int" Nullable="true" />
+  </EntityType>
+  <EntityType Name="sysdiagrams">
+    <Key>
+      <PropertyRef Name="diagram_id" />
+    </Key>
+    <Property Name="name" Type="nvarchar" Nullable="false" MaxLength="128" />
+    <Property Name="principal_id" Type="int" Nullable="false" />
+    <Property Name="diagram_id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="version" Type="int" Nullable="true" />
+    <Property Name="definition" Type="varbinary(max)" Nullable="true" />
+  </EntityType>
+  <EntityType Name="Device">
+    <Key>
+      <PropertyRef Name="Device_ID" />
+    </Key>
+    <Property Name="Device_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Device_Type" Type="nvarchar" Nullable="true" MaxLength="10" />
+    <Property Name="Ricon_SN" Type="nvarchar" Nullable="true" MaxLength="50" />
+    <Property Name="Company_ID" Type="int" Nullable="true" />
+    <Property Name="Status" Type="int" Nullable="true" />
+  </EntityType>
+  <EntityType Name="Data">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="GMS_No" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="APN_Name" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="APN_User" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="APN_Password" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="NAT" Type="tinyint" Nullable="true" />
+    <Property Name="DHCP_Status" Type="tinyint" Nullable="true" />
+    <Property Name="DHCP_Start" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="DHCP_User" Type="int" Nullable="true" />
+    <Property Name="LAN_Eski" Type="nvarchar" Nullable="true" MaxLength="250" />
+    <Property Name="LAN_IP" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="LAN_Subnet" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="Serial_no" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="Datetime" Type="datetime" Nullable="true" />
+    <Property Name="Status" Type="tinyint" Nullable="true" />
+    <Property Name="UserName" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="remark" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="Flag" Type="tinyint" Nullable="true" />
+    <Property Name="Lokasyon" Type="nvarchar" Nullable="true" MaxLength="255" />
+  </EntityType>
+  <EntityType Name="Registered_Router">
+    <Key>
+      <PropertyRef Name="Registered_ID" />
+    </Key>
+    <Property Name="Registered_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Ricon_SN" Type="nvarchar" Nullable="true" MaxLength="50" />
+    <Property Name="GSM_No" Type="nvarchar" Nullable="true" MaxLength="50" />
+    <Property Name="Company_Name" Type="nvarchar" Nullable="true" MaxLength="50" />
+    <Property Name="Site_Name" Type="nvarchar" Nullable="true" MaxLength="255" />
+  </EntityType>
+  <EntityType Name="UserLogin">
+    <Key>
+      <PropertyRef Name="User_ID" />
+    </Key>
+    <Property Name="User_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Username" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="Password" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="IsAdmin" Type="bit" Nullable="true" />
+    <Property Name="Creator" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="Status" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="Create_DateTime" Type="datetime" Nullable="true" />
+    <Property Name="LocationStatus" Type="nvarchar(max)" Nullable="true" />
+    <Property Name="Company_ID" Type="int" Nullable="false" />
+  </EntityType>
+  <EntityType Name="Basic_Setup">
+    <Key>
+      <PropertyRef Name="ID" />
+    </Key>
+    <Property Name="ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Serial_no" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="GMS_No" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="APN_Name" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="LAN_IP" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="LAN_Subnet" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="LAN_Eski" Type="nvarchar" Nullable="true" MaxLength="250" />
+    <Property Name="NAT" Type="tinyint" Nullable="true" />
+    <Property Name="DHCP_Status" Type="tinyint" Nullable="true" />
+    <Property Name="DHCP_Start" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="DHCP_User" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="Datetime" Type="datetime" Nullable="true" />
+    <Property Name="Status" Type="tinyint" Nullable="true" />
+    <Property Name="UserName" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="remark" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="Flag" Type="tinyint" Nullable="false" />
+    <Property Name="Company_ID" Type="int" Nullable="true" />
+  </EntityType>
+  <EntityType Name="UserLogin45">
+    <Key>
+      <PropertyRef Name="User_ID" />
+    </Key>
+    <Property Name="User_ID" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+    <Property Name="Username" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="Password" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="IsAdmin" Type="bit" Nullable="true" />
+    <Property Name="Creator" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="Status" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="Create_DateTime" Type="datetime" Nullable="true" />
+    <Property Name="LocationStatus" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="Company_ID" Type="nvarchar" Nullable="false" MaxLength="255" />
+    <Property Name="Company_Name" Type="nvarchar" Nullable="true" MaxLength="255" />
+    <Property Name="Company_Domain" Type="nvarchar" Nullable="true" MaxLength="255" />
+  </EntityType>
+</Schema></edmx:StorageModels>
+		<!-- CSDL content -->
+		<edmx:ConceptualModels>
+			<Schema Namespace="ZTP_TestModel" Alias="Self" annotation:UseStrongSpatialTypes="false" xmlns:annotation="http://schemas.microsoft.com/ado/2009/02/edm/annotation" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm">
+				<EntityContainer Name="ZTP_TestEntities" annotation:LazyLoadingEnabled="true">
+					<EntitySet Name="Company" EntityType="ZTP_TestModel.Company" />
+					<EntitySet Name="GsmNumber" EntityType="ZTP_TestModel.GsmNumber" />
+					<EntitySet Name="Install" EntityType="ZTP_TestModel.Install" />
+					<EntitySet Name="Sites" EntityType="ZTP_TestModel.Site" />
+					<EntitySet Name="sysdiagrams" EntityType="ZTP_TestModel.sysdiagram" />
+					<EntitySet Name="Device" EntityType="ZTP_TestModel.Device" />
+          <EntitySet Name="Data" EntityType="ZTP_TestModel.Data" />
+          <EntitySet Name="Registered_Router" EntityType="ZTP_TestModel.Registered_Router" />
+          <EntitySet Name="UserLogin" EntityType="ZTP_TestModel.UserLogin" />
+          <EntitySet Name="Basic_Setup" EntityType="ZTP_TestModel.Basic_Setup" />
+          <EntitySet Name="UserLogin45" EntityType="ZTP_TestModel.UserLogin45" />
+				</EntityContainer>
+				<EntityType Name="Company">
+					<Key>
+						<PropertyRef Name="Company_ID" />
+						<PropertyRef Name="Company_Name" />
+            <PropertyRef Name="ID" />
+					</Key>
+					<Property Name="Company_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+					<Property Name="Company_Name" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Company_Domain" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+				</EntityType>
+				<EntityType Name="GsmNumber">
+					<Key>
+						<PropertyRef Name="GSM_No_ID" />
+					</Key>
+					<Property Name="GSM_No_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+					<Property Name="GSM_No" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+					<Property Name="Status" Type="Int32" />
+					<Property Name="Company_ID" Type="Int32" />
+				</EntityType>
+				<EntityType Name="Install">
+					<Key>
+						<PropertyRef Name="Install_ID" />
+					</Key>
+					<Property Name="Install_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+					<Property Name="Ricon_SN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+					<Property Name="GSM_No" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+					<Property Name="Site_Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+					<Property Name="WAN_ip" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+					<Property Name="Username" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+					<Property Name="Company_ID" Type="Int32" />
+					<Property Name="Date_Time" Type="DateTime" Precision="3" />
+				</EntityType>
+				<EntityType Name="Site">
+					<Key>
+						<PropertyRef Name="Site_ID" />
+					</Key>
+					<Property Name="Site_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+					<Property Name="Site_Name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+					<Property Name="Company_ID" Type="Int32" />
+					<Property Name="Status" Type="Int32" />
+				</EntityType>
+				<EntityType Name="sysdiagram">
+					<Key>
+						<PropertyRef Name="diagram_id" />
+					</Key>
+					<Property Name="name" Type="String" Nullable="false" MaxLength="128" FixedLength="false" Unicode="true" />
+					<Property Name="principal_id" Type="Int32" Nullable="false" />
+					<Property Name="diagram_id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+					<Property Name="version" Type="Int32" />
+					<Property Name="definition" Type="Binary" MaxLength="Max" FixedLength="false" />
+				</EntityType>
+				<EntityType Name="Device">
+					<Key>
+						<PropertyRef Name="Device_ID" />
+					</Key>
+					<Property Name="Device_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+					<Property Name="Device_Type" Type="String" MaxLength="10" FixedLength="false" Unicode="true" />
+					<Property Name="Ricon_SN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+					<Property Name="Company_ID" Type="Int32" />
+					<Property Name="Status" Type="Int32" />
+				</EntityType>
+        <EntityType Name="Data">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="GMS_No" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="APN_Name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="APN_User" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="APN_Password" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="NAT" Type="Byte" />
+          <Property Name="DHCP_Status" Type="Byte" />
+          <Property Name="DHCP_Start" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="DHCP_User" Type="Int32" />
+          <Property Name="LAN_Eski" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="LAN_IP" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="LAN_Subnet" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Serial_no" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Datetime" Type="DateTime" Precision="3" />
+          <Property Name="Status" Type="Byte" />
+          <Property Name="UserName" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="remark" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Flag" Type="Byte" />
+          <Property Name="Lokasyon" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="Registered_Router">
+          <Key>
+            <PropertyRef Name="Registered_ID" />
+          </Key>
+          <Property Name="Registered_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Ricon_SN" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="GSM_No" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Company_Name" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="Site_Name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+        <EntityType Name="UserLogin">
+          <Key>
+            <PropertyRef Name="User_ID" />
+          </Key>
+          <Property Name="User_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Username" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Password" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="IsAdmin" Type="Boolean" />
+          <Property Name="Creator" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Status" Type="String" />
+          <Property Name="Create_DateTime" Type="DateTime" Precision="3" />
+          <Property Name="LocationStatus" Type="String" />
+          <Property Name="Company_ID" Type="Int32" Nullable="false" />
+        </EntityType>
+        <EntityType Name="Basic_Setup">
+          <Key>
+            <PropertyRef Name="ID" />
+          </Key>
+          <Property Name="ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Serial_no" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="GMS_No" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="APN_Name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="LAN_IP" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="LAN_Subnet" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="LAN_Eski" Type="String" MaxLength="250" FixedLength="false" Unicode="true" />
+          <Property Name="NAT" Type="Byte" />
+          <Property Name="DHCP_Status" Type="Byte" />
+          <Property Name="DHCP_Start" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="DHCP_User" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Datetime" Type="DateTime" Precision="3" />
+          <Property Name="Status" Type="Byte" />
+          <Property Name="UserName" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="remark" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Flag" Type="Byte" Nullable="false" />
+          <Property Name="Company_ID" Type="Int32" />
+        </EntityType>
+        <EntityType Name="UserLogin45">
+          <Key>
+            <PropertyRef Name="User_ID" />
+          </Key>
+          <Property Name="User_ID" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="Username" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Password" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="IsAdmin" Type="Boolean" />
+          <Property Name="Creator" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Status" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Create_DateTime" Type="DateTime" Precision="3" />
+          <Property Name="LocationStatus" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Company_ID" Type="String" Nullable="false" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Company_Name" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+          <Property Name="Company_Domain" Type="String" MaxLength="255" FixedLength="false" Unicode="true" />
+        </EntityType>
+			</Schema>
+		</edmx:ConceptualModels>
+		<!-- C-S mapping content -->
+		<edmx:Mappings>
+		<Mapping Space="C-S" xmlns="http://schemas.microsoft.com/ado/2009/11/mapping/cs">
+  <EntityContainerMapping StorageEntityContainer="ZTP_TestModelStoreContainer" CdmEntityContainer="ZTP_TestEntities">
+    <EntitySetMapping Name="Company">
+      <EntityTypeMapping TypeName="IsTypeOf(ZTP_TestModel.Company)">
+        <MappingFragment StoreEntitySet="Company">
+          <ScalarProperty Name="Company_ID" ColumnName="Company_ID" />
+          <ScalarProperty Name="Company_Name" ColumnName="Company_Name" />
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Company_Domain" ColumnName="Company_Domain" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="GsmNumber">
+      <EntityTypeMapping TypeName="IsTypeOf(ZTP_TestModel.GsmNumber)">
+        <MappingFragment StoreEntitySet="GsmNumber">
+          <ScalarProperty Name="GSM_No_ID" ColumnName="GSM_No_ID" />
+          <ScalarProperty Name="GSM_No" ColumnName="GSM_No" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="Company_ID" ColumnName="Company_ID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Install">
+      <EntityTypeMapping TypeName="IsTypeOf(ZTP_TestModel.Install)">
+        <MappingFragment StoreEntitySet="Install">
+          <ScalarProperty Name="Install_ID" ColumnName="Install_ID" />
+          <ScalarProperty Name="Ricon_SN" ColumnName="Ricon_SN" />
+          <ScalarProperty Name="GSM_No" ColumnName="GSM_No" />
+          <ScalarProperty Name="Site_Name" ColumnName="Site_Name" />
+          <ScalarProperty Name="WAN_ip" ColumnName="WAN_ip" />
+          <ScalarProperty Name="Username" ColumnName="Username" />
+          <ScalarProperty Name="Company_ID" ColumnName="Company_ID" />
+          <ScalarProperty Name="Date_Time" ColumnName="Date_Time" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Sites">
+      <EntityTypeMapping TypeName="IsTypeOf(ZTP_TestModel.Site)">
+        <MappingFragment StoreEntitySet="Sites">
+          <ScalarProperty Name="Site_ID" ColumnName="Site_ID" />
+          <ScalarProperty Name="Site_Name" ColumnName="Site_Name" />
+          <ScalarProperty Name="Company_ID" ColumnName="Company_ID" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="sysdiagrams">
+      <EntityTypeMapping TypeName="IsTypeOf(ZTP_TestModel.sysdiagram)">
+        <MappingFragment StoreEntitySet="sysdiagrams">
+          <ScalarProperty Name="diagram_id" ColumnName="diagram_id" />
+          <ScalarProperty Name="name" ColumnName="name" />
+          <ScalarProperty Name="principal_id" ColumnName="principal_id" />
+          <ScalarProperty Name="version" ColumnName="version" />
+          <ScalarProperty Name="definition" ColumnName="definition" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Device">
+      <EntityTypeMapping TypeName="IsTypeOf(ZTP_TestModel.Device)">
+        <MappingFragment StoreEntitySet="Device">
+          <ScalarProperty Name="Device_ID" ColumnName="Device_ID" />
+          <ScalarProperty Name="Device_Type" ColumnName="Device_Type" />
+          <ScalarProperty Name="Ricon_SN" ColumnName="Ricon_SN" />
+          <ScalarProperty Name="Company_ID" ColumnName="Company_ID" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Data">
+      <EntityTypeMapping TypeName="IsTypeOf(ZTP_TestModel.Data)">
+        <MappingFragment StoreEntitySet="Data">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="GMS_No" ColumnName="GMS_No" />
+          <ScalarProperty Name="APN_Name" ColumnName="APN_Name" />
+          <ScalarProperty Name="APN_User" ColumnName="APN_User" />
+          <ScalarProperty Name="APN_Password" ColumnName="APN_Password" />
+          <ScalarProperty Name="NAT" ColumnName="NAT" />
+          <ScalarProperty Name="DHCP_Status" ColumnName="DHCP_Status" />
+          <ScalarProperty Name="DHCP_Start" ColumnName="DHCP_Start" />
+          <ScalarProperty Name="DHCP_User" ColumnName="DHCP_User" />
+          <ScalarProperty Name="LAN_Eski" ColumnName="LAN_Eski" />
+          <ScalarProperty Name="LAN_IP" ColumnName="LAN_IP" />
+          <ScalarProperty Name="LAN_Subnet" ColumnName="LAN_Subnet" />
+          <ScalarProperty Name="Serial_no" ColumnName="Serial_no" />
+          <ScalarProperty Name="Datetime" ColumnName="Datetime" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="UserName" ColumnName="UserName" />
+          <ScalarProperty Name="remark" ColumnName="remark" />
+          <ScalarProperty Name="Flag" ColumnName="Flag" />
+          <ScalarProperty Name="Lokasyon" ColumnName="Lokasyon" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Registered_Router">
+      <EntityTypeMapping TypeName="IsTypeOf(ZTP_TestModel.Registered_Router)">
+        <MappingFragment StoreEntitySet="Registered_Router">
+          <ScalarProperty Name="Registered_ID" ColumnName="Registered_ID" />
+          <ScalarProperty Name="Ricon_SN" ColumnName="Ricon_SN" />
+          <ScalarProperty Name="GSM_No" ColumnName="GSM_No" />
+          <ScalarProperty Name="Company_Name" ColumnName="Company_Name" />
+          <ScalarProperty Name="Site_Name" ColumnName="Site_Name" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="UserLogin">
+      <EntityTypeMapping TypeName="IsTypeOf(ZTP_TestModel.UserLogin)">
+        <MappingFragment StoreEntitySet="UserLogin">
+          <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+          <ScalarProperty Name="Username" ColumnName="Username" />
+          <ScalarProperty Name="Password" ColumnName="Password" />
+          <ScalarProperty Name="IsAdmin" ColumnName="IsAdmin" />
+          <ScalarProperty Name="Creator" ColumnName="Creator" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="Create_DateTime" ColumnName="Create_DateTime" />
+          <ScalarProperty Name="LocationStatus" ColumnName="LocationStatus" />
+          <ScalarProperty Name="Company_ID" ColumnName="Company_ID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="Basic_Setup">
+      <EntityTypeMapping TypeName="IsTypeOf(ZTP_TestModel.Basic_Setup)">
+        <MappingFragment StoreEntitySet="Basic_Setup">
+          <ScalarProperty Name="ID" ColumnName="ID" />
+          <ScalarProperty Name="Serial_no" ColumnName="Serial_no" />
+          <ScalarProperty Name="GMS_No" ColumnName="GMS_No" />
+          <ScalarProperty Name="APN_Name" ColumnName="APN_Name" />
+          <ScalarProperty Name="LAN_IP" ColumnName="LAN_IP" />
+          <ScalarProperty Name="LAN_Subnet" ColumnName="LAN_Subnet" />
+          <ScalarProperty Name="LAN_Eski" ColumnName="LAN_Eski" />
+          <ScalarProperty Name="NAT" ColumnName="NAT" />
+          <ScalarProperty Name="DHCP_Status" ColumnName="DHCP_Status" />
+          <ScalarProperty Name="DHCP_Start" ColumnName="DHCP_Start" />
+          <ScalarProperty Name="DHCP_User" ColumnName="DHCP_User" />
+          <ScalarProperty Name="Datetime" ColumnName="Datetime" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="UserName" ColumnName="UserName" />
+          <ScalarProperty Name="remark" ColumnName="remark" />
+          <ScalarProperty Name="Flag" ColumnName="Flag" />
+          <ScalarProperty Name="Company_ID" ColumnName="Company_ID" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+    <EntitySetMapping Name="UserLogin45">
+      <EntityTypeMapping TypeName="IsTypeOf(ZTP_TestModel.UserLogin45)">
+        <MappingFragment StoreEntitySet="UserLogin45">
+          <ScalarProperty Name="User_ID" ColumnName="User_ID" />
+          <ScalarProperty Name="Username" ColumnName="Username" />
+          <ScalarProperty Name="Password" ColumnName="Password" />
+          <ScalarProperty Name="IsAdmin" ColumnName="IsAdmin" />
+          <ScalarProperty Name="Creator" ColumnName="Creator" />
+          <ScalarProperty Name="Status" ColumnName="Status" />
+          <ScalarProperty Name="Create_DateTime" ColumnName="Create_DateTime" />
+          <ScalarProperty Name="LocationStatus" ColumnName="LocationStatus" />
+          <ScalarProperty Name="Company_ID" ColumnName="Company_ID" />
+          <ScalarProperty Name="Company_Name" ColumnName="Company_Name" />
+          <ScalarProperty Name="Company_Domain" ColumnName="Company_Domain" />
+        </MappingFragment>
+      </EntityTypeMapping>
+    </EntitySetMapping>
+  </EntityContainerMapping>
+</Mapping></edmx:Mappings>
+	</edmx:Runtime>
+	<!-- EF Designer content (DO NOT EDIT MANUALLY BELOW HERE) -->
+	<Designer xmlns="http://schemas.microsoft.com/ado/2009/11/edmx">
+		<Connection>
+			<DesignerInfoPropertySet>
+				<DesignerProperty Name="MetadataArtifactProcessing" Value="EmbedInOutputAssembly" />
+			</DesignerInfoPropertySet>
+		</Connection>
+		<Options>
+			<DesignerInfoPropertySet>
+				<DesignerProperty Name="ValidateOnBuild" Value="true" />
+				<DesignerProperty Name="EnablePluralization" Value="true" />
+				<DesignerProperty Name="IncludeForeignKeysInModel" Value="true" />
+				<DesignerProperty Name="UseLegacyProvider" Value="False" />
+				<DesignerProperty Name="CodeGenerationStrategy" Value="None" />
+			</DesignerInfoPropertySet>
+		</Options>
+		<!-- Diagram content (shape and connector positions) -->
+		<Diagrams></Diagrams>
+	</Designer>
+</edmx:Edmx>

@@ -1,0 +1,406 @@
+﻿@model KurulumWeb.Models.Login
+@using KurulumWeb.Resources
+@{
+    ViewBag.Title = "Login";
+    Layout = "~/Views/Shared/LoginLayout.cshtml";
+}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<style>
+    .mobile-language-icons {
+        display: none; /* Varsayılan olarak gizle */
+        text-align: center; /* İkonları ortala */
+        margin-bottom: 5px; /* Başlık ile ikonlar arasında daha az boşluk bırak */
+        margin-top: 10px; /* Sayfanın üst kısmına daha yakın olması için yukarıdan boşluk azalt */
+    }
+
+        .mobile-language-icons img {
+            width: 40px; /* İkonların genişliği */
+            height: 30px; /* İkonların yüksekliği */
+            object-fit: contain; /* Resmin boyutunu koruyarak sığdır */
+        }
+
+        .mobile-language-icons a {
+            margin-right: 10px; /* İkonlar arasında boşluk bırak */
+        }
+
+    @@media (max-width: 768px) {
+        .mobile-language-icons {
+            display: flex; /* Mobilde ikonları esnek bir şekilde göster */
+            justify-content: center; /* İkonları yatayda ortala */
+            margin-bottom: 15px; /* Başlık ile ikonlar arasında boşluk */
+        }
+
+        .language-selector {
+            display: none; /* Mobilde eski dil seçiciyi gizle */
+        }
+    }
+
+    .error-message {
+        white-space: pre-line; /* Alt alta satırların korunması */
+        display: block; /* Metnin aynı satırda değil, blok halinde görünmesi */
+        max-width: 100%; /* Modal içinde genişlemeyi sınırla */
+        overflow: hidden; /* Taşan kısmı gizle */
+    }
+
+    .login-ricon {
+        height: 100%;
+        width: 100%;
+        background-position: center;
+        background-image: url(../../assets/images/beyaz.jpg);
+        background-repeat: no-repeat;
+        background-size: cover;
+        display: inline-table;
+        position: relative;
+    }
+
+    .header-container {
+        margin-top: -187px; /* Başlığı yukarı taşı */
+        text-align: center;
+    }
+
+    .welcome-message {
+        margin-bottom: 20px; /* Başlığın altındaki boşluk */
+    }
+
+    .welcome-text {
+        font-weight: bold; /* Kalın yazı */
+        font-size: 28px; /* Yazı boyutu */
+        color: #000; /* Siyah renk */
+    }
+
+    .container-login100 {
+        margin-top: 20px; /* Formu başlıktan ayır */
+        padding-bottom: 100px; /* Footer için yeterli boşluk bırak */
+    }
+
+    footer {
+        text-align: center;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background-color: black;
+        color: lightgray;
+        line-height: 0.85;
+        padding: 12px;
+    }
+
+        footer div {
+            padding: 5px;
+        }
+
+    .wrap-input100 {
+        border: 3px solid #ff0000; /* Gri border (hex değeri: #ccc) */
+        border-radius: 4px; /* Köşeleri yuvarlamak için isteğe bağlı */
+        padding: 4px; /* İç boşluk */
+    }
+
+    .form-btn {
+        display: flex;
+        justify-content: center; /* Yatay olarak ortalar */
+        margin-top: 20px; /* Üst boşluk */
+    }
+
+    .container-header {
+        background-color: white;
+        display: flex;
+        align-items: center; /* Dikey olarak ortalamak için */
+        justify-content: space-between; /* Yazı ve logoyu sağa sola itmek için */
+        height: 70px; /* Sabit yükseklik */
+        padding: 0 10px; /* Yanlardan biraz boşluk */
+    }
+
+    .container-text {
+        font-size: 29px;
+        margin-right: auto; /* Yazıyı sola itmek için */
+        font-weight: bold;
+    }
+
+    .container-logo {
+        /* İhtiyaç duyulursa buraya margin ekleyebilirsiniz */
+        margin-inline-end: -50px;
+    }
+
+    .logo-imgs {
+        transform: scale(0.7);
+        height: 70px; /* Logonun yüksekliği */
+    }
+
+    @@media (max-width: 768px) {
+        /* Mobil cihazlar için */
+        .logo-imgs {
+            height: 40px; /* Mobil için ayarlanan yükseklik */
+        }
+    }
+
+    /* Yeni dil seçici stili */
+    .language-selector {
+        position: fixed;
+        right: 20px;
+        top: 200px;
+        border-radius: 5px;
+        padding: 10px;
+        z-index: 1000;
+    }
+
+    .language-list {
+        list-style-type: none;
+        padding: 0;
+    }
+
+        .language-list li {
+            margin: 5px 0;
+        }
+
+        .language-list .spacer {
+            height: 25px; /* Boşluk için uygun bir yükseklik ayarlayın */
+        }
+
+        .language-list img {
+            width: 40px;
+            margin-right: 5px;
+        }
+
+    @@media (max-width: 375px) {
+        /* Iphone SE için */
+        .container-login100 {
+            margin-top: -25px; /* Üst boşluğu azalt */
+            padding-bottom: 53px; /* Footer ile çakışmayı önle */
+        }
+
+        .header-container {
+            font-size: 1rem;
+        }
+
+        .wrap-input100 {
+            padding: 0;
+        }
+
+        .container-login100-form-btn {
+            padding-block-start: 0;
+        }
+
+        .form-btn {
+            margin-top: 4px;
+        }
+
+        footer {
+            line-height: 0.8; /* Footer'ın daha ince görünmesini sağla */
+            padding: 5px; /* İç boşluğu azalt */
+        }
+
+            footer div {
+                padding: 3px;
+            }
+    }
+
+    /* Tüm mobil cihazlar (1024px ve altı genişlikler) için */
+    @@media (max-width: 1024px) {
+        .language-selector {
+            position: fixed;
+            right: 20px;
+            top: 75px; /* Tek bir değer kullanarak tüm mobil cihazlar için geçerli */
+            border-radius: 5px;
+            padding: 10px;
+            z-index: 1000;
+        }
+    }
+
+    /* Mobil cihazlar için (1024px ve altı) */
+    @@media (max-width: 1024px) {
+        .language-selector {
+            top: 75px;
+        }
+    }
+
+    /* Daha büyük ekranlar için (1025px ve üstü) */
+    @@media (min-width: 1025px) {
+        .language-selector {
+            top: 235px;
+        }
+    }
+</style>
+
+<div class="header-container">
+    <div class="welcome-message">
+        <h1 class="welcome-text">@Resources.L356</h1>
+    </div>
+    <div>
+        <h3>@Resources.L357</h3>
+    </div>
+</div>
+
+<div class="container-login100">
+    <form method="post">
+        <div class="wrap-input100 validate-input input-group">
+            <a class="input-group-text bg-white text-muted">
+                <i class="ion-person text-muted" aria-hidden="true"></i>
+            </a>
+            @Html.TextBoxFor(x => x.UserName, new { @class = "input100 border-start-0 form-control ms-0", style = "font-size:20px;" })
+        </div>
+        <div class="wrap-input100 validate-input input-group" id="Password-toggle">
+            <a class="input-group-text bg-white text-muted">
+                <i class="zmdi zmdi-eye text-muted" aria-hidden="true"></i>
+            </a>
+            @Html.TextBoxFor(x => x.Password, new { @class = "input100 border-start-0 form-control ms-0", type = "password", style = "font-size:20px" })
+        </div>
+        <div class="form-btn">
+            <button type="submit" class="btn btn-danger-gradient" id="btngiris">@Resources.L102</button>
+        </div>
+        <div class="container-login100-form-btn">
+            <label style="color:red;" class="error-message">@ViewBag.LoginError</label>
+        </div>
+    </form>
+</div>
+
+<!-- Yeni Dil Seçici -->
+<div class="language-selector">
+    <ul class="language-list">
+        <li>
+            <a href="#" onclick="changeLanguage('tr-TR')">
+                <img src="../assets/images/flags-img/aa.png" alt="Turkish" /> Türkçe
+            </a>
+        </li>
+        <li class="spacer"></li>
+        <li>
+            <a href="#" onclick="changeLanguage('en-GB')">
+                <img src="../assets/images/flags-img/en.png" alt="English" /> English
+            </a>
+        </li>
+        <li class="spacer"></li>
+        <li>
+            <a href="#" onclick="changeLanguage('it-IT')">
+                <img src="../assets/images/flags-img/italya.png" alt="Italian" /> Italiano
+            </a>
+        </li>
+        <li class="spacer"></li> <!-- Boşluk için eklenen satır -->
+        <li>
+            <a href="#" onclick="changeLanguage('fr-FR')">
+                <img src="../assets/images/flags-img/fransa.png" alt="French" /> Français
+            </a>
+        </li>
+        <li class="spacer"></li>
+        <li>
+            <a href="#" onclick="changeLanguage('de-DE')">
+                <img src="../assets/images/flags-img/almanya.png" alt="German" /> Deutsch
+            </a>
+        </li>
+    </ul>
+</div>
+
+<footer>
+    <div style="background-color:black; color:lightgray;">
+        <span style="display: inline;">@Resources.L358</span>
+        <a href="https://riconmobile.com/support" style="font-weight: bold; color: red; text-decoration: none;">@Resources.L359</a>&nbsp;&nbsp;
+        <a style="color:white" href="mailto:riconrequest@riconmobile.com">riconrequest@riconmobile.com</a>
+    </div>
+    <div style="border-top: 1px solid lightgray;"></div>
+    <div style="background-color:black; color:lightgray;">
+        <span style="display: inline;">@Resources.L360</span>
+    </div>
+    <div style="border-top: 1px solid lightgray;"></div>
+    <div style="background-color:black; color:lightgray;">
+        <span style="display: inline;">@Resources.L361</span>
+    </div>
+    <div style="border-top: 1px solid lightgray;"></div>
+    <div style="background-color:black; color:lightgray;">
+        <span style="display: inline;">@Resources.L362</span>
+    </div>
+</footer>
+
+@using (Html.BeginForm("SetCulture", "Login"))
+{
+    @Html.Hidden("cultureText")
+    <div class="modal fade" id="country-selector">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content country-select-modal">
+                <div class="modal-header">
+                    <h6 class="modal-title">Choose Country</h6>
+                    <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <ul class="row p-3">
+                        <li class="col-lg-6 mb-2">
+                            <a href="#" class="btn btn-country btn-lg btn-block" onclick="changeLanguage('en-GB')">
+                                <span class="country-selector">
+                                    <img class="me-3 language" src="../assets/images/flags-img/en.png" id="langEng" data-name="İngilizce" alt="">
+                                </span>English
+                            </a>
+                        </li>
+                        <li class="col-lg-6 mb-2">
+                            <a href="#" onclick="changeLanguage('it-IT')" class="btn btn-country btn-lg btn-block">
+                                <span class="country-selector">
+                                    <img class="me-3 language" src="../assets/images/flags-img/italya.png" id="langIta" data-name="İtaliano" alt="">
+                                </span>Italiano
+                            </a>
+                        </li>
+                        <li class="col-lg-6 mb-2">
+                            <a href="#" onclick="changeLanguage('fr-FR')" class="btn btn-country btn-lg btn-block">
+                                <span class="country-selector">
+                                    <img class="me-3 language" src="../assets/images/flags-img/fransa.png" id="langFra" data-name="Français" alt="">
+                                </span>French
+                            </a>
+                        </li>
+                        <li class="col-lg-6 mb-2">
+                            <a href="#" onclick="changeLanguage('de-DE')" class="btn btn-country btn-lg btn-block">
+                                <span class="country-selector">
+                                    <img class="me-3 language" src="../assets/images/flags-img/almanya.png" id="langDe" data-name="Germain" alt="">
+                                </span>Deutsch
+                            </a>
+                        </li>
+                        <li class="col-lg-6 mb-2">
+                            <a href="#" onclick="changeLanguage('tr-TR')" class="btn btn-country btn-lg btn-block">
+                                <span class="country-selector">
+                                    <img class="me-3 language" src="../assets/images/flags-img/aa.png" id="langTr" data-name="Turkey" alt="">
+                                </span>Türkçe
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<!--#region Dil JS-->
+@*<script>
+        $(document).ready(function () {
+            var culture = '@culture';
+            setFlag(culture);
+            // Başlangıç dilini sistemin diline ayarla
+            changeLanguage(culture);
+        });
+
+        function changeLanguage(langType) {
+            var culture = '@culture';
+            if (culture !== langType) {
+                $("#cultureText").val(langType);
+                $("#langEng").parents("form").submit();
+            }
+        }
+    </script>*@
+
+<!--#endregion-->
+<!--#region Dil MouseOver-->
+<script>
+    var languageIcon = document.getElementById("languageIcon");
+    var spanElement = document.querySelector(".fs-16.ms-2.d-none.d-xl-block");
+
+    languageIcon.addEventListener("mouseover", function () {
+        spanElement.textContent = "Choose Country";
+    });
+</script>
+
+<script>
+    document.addEventListener("keypress", function (event) {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Varsayılan form gönderimini engelle
+            document.getElementById("btngiris").click(); // Giriş butonuna tıkla
+        }
+    });
+</script>
+
+
+<!--#endregion-->

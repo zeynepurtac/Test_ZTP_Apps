@@ -1,0 +1,1306 @@
+﻿@using KurulumWeb.Resources
+@model KurulumWeb.Models.AllModel
+@{
+    ViewBag.Title = "BasicSetup";
+    Layout = "~/Views/Shared/RiconAdminLayoutPage.cshtml";
+    var culture = System.Threading.Thread.CurrentThread.CurrentUICulture.Name.ToLowerInvariant();
+}
+
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <link href="~/assets/Setup.css" rel="stylesheet" />
+</head>
+<!--#region Style-->
+<style>
+    #btnSaveData {
+        margin-inline-start: -16px;
+    }
+
+    #loadingModal {
+        z-index: 1050; /* Modal için z-index ayarı */
+        background-color: transparent; /* Modal arka plan rengini şeffaf yapın */
+    }
+
+    .modal-content {
+        background-color: white; /* Modal içeriği için beyaz arka plan */
+        border-radius: 8px; /* Köşe yuvarlama */
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3); /* Gölgelendirme efekti */
+    }
+
+    .modal-body {
+        font-size: 14px; /* Yazı boyutunu ayarlayın */
+        padding: 20px; /* İçerik için padding ekleyin */
+    }
+
+    .lds-ring {
+        display: inline-block;
+        position: relative;
+        height: 0px; /* Loader yüksekliği */
+        margin-top: 10px; /* Yukarıdan biraz boşluk bırak */
+    }
+
+        .lds-ring div {
+            box-sizing: border-box;
+            display: block;
+            position: absolute;
+            width: 50px; /* İçteki dairenin genişliği */
+            height: 50px; /* İçteki dairenin yüksekliği */
+            margin: 2px; /* Dış boşluk */
+            border: 4px solid #3498db; /* Renk ayarı */
+            border-radius: 50%;
+            animation: lds-ring 1.2s infinite;
+            border-color: #3498db transparent transparent transparent; /* Renk ayarı */
+        }
+
+    @@keyframes lds-ring {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+</style>
+<!--#endregion-->
+<!--#region Alan kontrol ve SaveSetupData Script-->
+<script>
+$(document).ready(function () {
+    // Modal açıldığında alanları temizle
+    $('#opendata').click(function () {
+        $('.modal-body input[type="text"]').val('').attr('placeholder', '');
+        $('#newiDhcpStatus').val(0);
+        $('#addModal').modal('show');
+        checkDhcpStatus();
+    });
+
+    function checkDhcpStatus() {
+        const dhcpStatusValue = $('#newiDhcpStatus').val();
+        const dhcpFieldsContainer = $('#dhcpFieldsContainer');
+        if (dhcpStatusValue === '1') {
+            dhcpFieldsContainer.show();
+            $('#newiDhcpStart').prop('disabled', false);
+            $('#newiDhcpUser').prop('disabled', false);
+        } else {
+            dhcpFieldsContainer.hide();
+            $('#newiDhcpStart').val('').prop('disabled', true).attr('placeholder', '');
+            $('#newiDhcpUser').val('').prop('disabled', true).attr('placeholder', '');
+        }
+    }
+
+    $('#newiDhcpStatus').change(checkDhcpStatus);
+
+    function validateApn() {
+         const apnName = $('#newiAPN_Name').val().trim();
+         const placeholderText = '@Resources.L386';
+
+        if (!apnName) {
+            $('#newiAPN_Name').val('').attr('placeholder', placeholderText);
+            return false;
+        }
+        return true;
+    }
+
+    function validateLanIP() {
+        const lanIPInput = $('#newiLanIp');
+        const lanIPValue = lanIPInput.val().trim();
+        const placeholderText = '@Resources.L387';
+        const ipRegex = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+
+        if (!ipRegex.test(lanIPValue)) {
+            lanIPInput.val('').attr('placeholder', placeholderText);
+            return false;
+        }
+        return true;
+    }
+
+    function validateLanSubnet() {
+        const lanSubnetInput = $('#newiLanSubnet');
+        const lanSubnetValue = lanSubnetInput.val().trim();
+        const placeholderText = '@Resources.L388';
+        const ipRegex = /^(255)\.(255|0)\.(255|0)\.(0|[1-9][0-9]?[0-9]?|[0-1][0-9][0-9]?|[2][0-4][0-9]|[2][5][0-5])$/;
+
+        if (!ipRegex.test(lanSubnetValue)) {
+            lanSubnetInput.val('').attr('placeholder', placeholderText);
+            return false;
+        }
+        return true;
+    }
+
+    function validateDHCPFields() {
+        const dhcpStatusValue = $('#newiDhcpStatus').val();
+
+        if (dhcpStatusValue === '1') {
+            const dhcpStartValue = $('#newiDhcpStart').val().trim();
+            const dhcpUserValue = $('#newiDhcpUser').val().trim();
+            const placeholderstartText = '@Resources.L389';
+            const placeholderendText = '@Resources.L390';
+
+            if (!dhcpStartValue) {
+                $('#newiDhcpStart').val('').attr('placeholder', placeholderstartText);
+                return false;
+            }
+
+            if (!dhcpUserValue) {
+                $('#newiDhcpUser').val('').attr('placeholder', placeholderendText);
+                return false;
+            }
+        }
+        return true;
+    }
+
+    function validateForm() {
+        let isValid = true;
+        if (!validateApn()) isValid = false;
+        if (!validateLanIP()) isValid = false;
+        if (!validateLanSubnet()) isValid = false;
+        if (!validateDHCPFields()) isValid = false;
+
+        return isValid;
+    }
+
+    $('#btnSaveData').click(function (e) {
+        e.preventDefault(); // Form gönderimini engelle
+
+        if (!validateForm()) {
+            $('#errorModal').modal('show');
+            setTimeout(function () {
+                $('#errorModal').modal('hide');
+            }, 3000);
+            return;
+        }
+
+        let hasEmptyField = false; // hasEmptyField değişkeni tanımlandı
+
+       if ($('#newiDhcpStatus').val() == '1') {
+            const lanIpValue = $('#newiLanIp').val().trim();
+            const dhcpStartValue = $('#newiDhcpStart').val().trim();
+            const dhcpUserValue = $('#newiDhcpUser').val().trim();
+            const placeholderstartsText = '@Resources.L389'; // Boş olamaz mesajı
+            const startlanipText = '@Resources.L391'; // Aynı subnet mesajı
+            const startlanips = '@Resources.L392'; // DHCP Start IP uyarısı
+
+           if (!dhcpStartValue) {
+               hasEmptyField = true;
+               $('#newiDhcpStart').attr('placeholder', placeholderstartsText).val('');
+           } else {
+               const startIpParts = dhcpStartValue.split('.').map(Number);
+               const lanIpParts = lanIpValue.split('.').map(Number);
+
+               // Subnet kontrolü
+               if (startIpParts[0] !== lanIpParts[0] || startIpParts[1] !== lanIpParts[1] || startIpParts[2] !== lanIpParts[2]) {
+                   hasEmptyField = true;
+                   $('#newiDhcpStart').attr('placeholder', startlanipText).val('');
+               }
+               // DHCP Start IP, LAN IP'den büyük olmalı kontrolü
+               else if (startIpParts[3] <= lanIpParts[3]) {
+                   hasEmptyField = true;
+
+                   // Örnek IP'yi oluştur ve placeholder'ı ayarla
+                   $('#newiDhcpStart').attr('placeholder', `${startlanips} ${lanIpParts[0]}.${lanIpParts[1]}.${lanIpParts[2]}.${lanIpParts[3] + 1}`).val('');
+               }
+           }
+
+            if (!dhcpUserValue) {
+                hasEmptyField = true;
+                const placeholderendsText = '@Resources.L390';
+                $('#newiDhcpUser').attr('placeholder', placeholderendsText).val('');
+            } else {
+                const countParts = dhcpUserValue.split('.').map(Number);
+                const startIpParts = dhcpStartValue ? dhcpStartValue.split('.').map(Number) : [];
+                const placeholderendsameText = '@Resources.L393';
+
+                if (countParts[0] !== startIpParts[0] || countParts[1] !== startIpParts[1] || countParts[2] !== startIpParts[2]) {
+                    hasEmptyField = true;
+                    $('#newiDhcpUser').attr('placeholder', placeholderendsameText).val('');
+                } else {
+                    const startLastOctet = startIpParts[3];
+                    const minCountIp = startLastOctet + 1;
+                    const maxCountIp = 256;
+
+                    if (countParts[3] < minCountIp || countParts[3] > maxCountIp) {
+                        hasEmptyField = true;
+                        const dhcpCountText = '@Resources.L394'; // "DHCP Count"
+                        const betweenText = '@Resources.L395'; // "between"
+                        const mustBeValueText = '@Resources.L396'; // "must be a value"
+                        $('#newiDhcpUser').attr('placeholder',
+                            `${dhcpCountText}, ${startIpParts[0]}.${startIpParts[1]}.${startIpParts[2]}.${minCountIp} ${betweenText} ${startIpParts[0]}.${startIpParts[1]}.${startIpParts[2]}.${maxCountIp} ${mustBeValueText}.`
+                        ).val('');
+}
+                }
+            }
+        }
+
+        if (hasEmptyField) return;
+
+        const data = {
+            APN_Name: $('#newiAPN_Name').val().trim(),
+            DhcpStatuss: $('#newiDhcpStatus').val(),
+            DHCP_Starts: $('#newiDhcpStatus').val() === '0' ? null : $('#newiDhcpStart').val(),
+            DhcpUsers: $('#newiDhcpStatus').val() === '0' ? null : $('#newiDhcpUser').val(),
+            LAN_IPs: $('#newiLanIp').val().trim(),
+            Lan_Subnets: $('#newiLanSubnet').val().trim(),
+            remarks: $('#newiRemark').val(),
+            selectedSeriNo: $('#SeriNo').val(),
+        };
+
+        $.ajax({
+            url: '@Url.Action("SaveSetupData", "Home")',
+            type: 'POST',
+            data: data,
+            success: function (response) {
+                if (response.success) {
+                   $('#customModal2 .modal-body').text('@Resources.L332'); // Başarı mesajı
+                   $('#customModal2').modal('show'); // Modali aç
+
+                    $('#customModal2').on('hidden.bs.modal', function () {
+                        location.reload(); // Sayfayı yenile
+                    });
+                } else {
+                    showModal(errorMessage, response.message); // Hata mesajını göster
+                }
+            },
+            error: function (xhr, status, error) {
+                // Hata mesajını modal içinde göster
+                $('#errorModalMessage').text(errorMessage + ": " + error);
+                $('#errorModal').modal('show');
+            }
+        });
+    });
+});
+</script>
+
+<!--#endregion-->
+<!--#region DataTable Script-->
+<script type="text/javascript">
+    $(document).ready(function () {
+        var table;
+        $("#opendata").click(function (){
+            $("#dataTableModalData").modal("show");
+
+            // "Select All" checkbox'ını devre dışı bırak ve seçimini kaldır
+            $('#select-all').prop('checked', false); //Seçimi kaldır
+            $('.row-checkbox').prop('checked', false);
+
+            if (!table) {
+                table = $('#responsive-datatable').DataTable({
+                    serverSide: true,
+                    processing: true,
+                    language: {
+                        deploy: "Deploy",
+                        search: "@Resources.L397",
+                        processing: "@Resources.L398",
+                        lengthMenu: "@Resources.L399" +" "+ "_MENU_",
+                        info: "@Resources.L400 _TOTAL_ @Resources.L401 _START_ @Resources.L395 _END_ @Resources.L402",
+                        paginate: {
+                            previous: "@Resources.L403",
+                            next: "@Resources.L404"
+                        }
+                    },
+                    ajax: {
+                        url: '/Home/DeviceSetupData',
+                        type: 'POST',
+                        data: function (d) {
+                            d.page = (d.start / d.length) + 1;
+                            d.pageSize = d.length;
+                            d.search = d.search.value;
+                        }
+                    },
+                    columnDefs: [
+                        { targets: '_all', orderable: false },
+                        { targets: [0], orderable: false }
+                    ],
+                    columns: [
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                return '<input type="checkbox" class="row-checkbox" data-row-id="' + row.ID + '">';
+                            }
+                        },
+                        { data: "GMS_No" },
+                        { data: "APN_Name" },
+                        { data: "LAN_IP" },
+                        {
+                            "data": "DHCP_Status",
+                            "render": function (data, type, row) {
+                                return data == 1 ? "Enable" : "Disable"; // 1 ise "Enable", 0 ise "Disable" yaz
+                            }
+                        },
+                        { data: "DHCP_Start" },
+                        { data: "DHCP_User" },
+                        { data: "LAN_Subnet" },
+                        { data: "Serial_no" },
+                        {
+                            data: "Datetime",
+                            render: function (data) {
+                                if (data) {
+                                    var aspNetDate = new Date(parseInt(data.substr(6)));
+                                    return aspNetDate.toLocaleString();
+                                } else {
+                                    return "";
+                                }
+                            }
+                        },
+                        { data: "remark" },
+                        {
+                            data: null,
+                            render: function (data, type, row) {
+                                var editButton = '<button class="btn btn-sm btn-primary edit-button" data-row-id="' + row.ID + '"><i class="fas fa-edit"></i></button>';
+                                var saveButton = '<button class="btn btn-sm btn-success save-button" style="display: none;" data-row-id="' + row.ID + '"><i class="fas fa-check"></i></button>';
+                                var cancelButton = '<button class="btn btn-sm btn-danger cancel-button" style="display: none;" data-row-id="' + row.ID + '"><i class="fas fa-times"></i></button>';
+                                var deleteButton = '<button class="btn btn-sm btn-danger delete-button" data-row-id="' + row.ID + '"><i class="fas fa-trash"></i></button>';
+                                var buttons = editButton + " " + saveButton + " " + cancelButton + " " + deleteButton;
+                                return buttons;
+                            }
+                        }
+                    ],
+                    pageLength: 20,
+                    lengthMenu: [20, 25, 50, 100],
+                    rowCallback: function (row, data, index) {
+                        if (index % 2 === 0) {
+                            $(row).css('background-color', 'white');
+                        } else {
+                            $(row).css('background-color', 'lightgrey');
+                        }
+                    }
+                });
+                $('#select-all').on('click', function () {
+                    var checked = this.checked; // Butonun durumunu kontrol et
+                    $('.row-checkbox').prop('checked', checked);
+                    console.log(checked);// Tüm satırları seç veya seçimi kaldır
+                });
+
+                // Submit butonu oluştur
+                if (!$('#submitButton').length) {
+                    var submitButton = $('<button>', {
+                        id: 'submitButton',
+                        text: 'Deploy',
+                        class: 'btn btn-primary',
+                        style: 'margin:10px',
+                    }).insertAfter('#responsive-datatable_filter label');
+                    // Task Status butonunu oluştur ve ekle
+                    var taskStatusButton = $('<button>', {
+                        id: 'taskStatusButton',
+                        text: 'Task Status',
+                        class: 'btn btn-primary',
+                        style:'margin:10px',
+
+                    }).insertAfter(submitButton); // Task Status butonunu hemen Deploy butonunun altına ekliyoruz
+
+                    // Task Status butonuna tıklanınca sayfayı yönlendirme
+                    taskStatusButton.click(function () {
+                        window.location.href = '/Home/TaskStatus'; // Task Status sayfasına yönlendirme
+                    });
+
+                    // Deploy butonuna tıklama olayı
+                    submitButton.on('click', function () {
+                        $(this).prop('disabled', true); // Butonu devre dışı bırak
+
+                        // Seçilen satırları al
+                        var selectedRows = [];
+                        $('.row-checkbox:checked').each(function () {
+                            var rowData = table.row($(this).closest('tr')).data();
+                            selectedRows.push({
+                                GMS_No: rowData.GMS_No,
+                                APN_Name: rowData.APN_Name,
+                                DHCP_Status: rowData.DHCP_Status,
+                                DHCP_Start: rowData.DHCP_Start,
+                                DHCP_User: rowData.DHCP_User,
+                                LAN_IP: rowData.LAN_IP,
+                                LAN_Subnet: rowData.LAN_Subnet,
+                                Ricon_SN: rowData.Serial_no,
+                                Remark: rowData.remark
+                            });
+                        });
+
+                        // Tüm seçilen veriyi konsolda göster
+                        console.log(selectedRows);
+
+                        if (selectedRows.length === 0) {
+                            $('#customModal1 .modal-body').text('@Resources.L384'); // Uyarı mesajı
+
+                            // Modal'ı aç
+                            $('#customModal1').modal('show');
+
+                            $(this).prop('disabled', false); // Eğer satır seçilmediyse butonu tekrar aktif et
+                            return;
+                        }
+
+                        // Çoklu seçim mi yapıldı yoksa tek bir satır mı seçildi?
+                        var ajaxUrl = selectedRows.length === 1 ? '/Home/Deploy' : '/Home/Deploy2';
+                        $('#loaderAnim').hide();
+
+                        $.ajax({
+                            url: ajaxUrl,
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify(selectedRows), // Directly send selectedRows
+                            success: function (response) {
+                                submitButton.prop('disabled', false);
+                                if (response.startOKMessage) {
+                                    $('#dialogStartOkMessage .modal-title').text(response.infoTitle || 'Onay Gerekiyor');
+                                    $('#dialogStartOkMessage .modal-body p').text(response.startOKMessage || 'Bir işlem gerçekleşiyor...');
+                                    $('#dialogStartOkMessage').modal('show');
+
+                                    $('#startOkActivation').on('click', function () {
+                                        $('#dialogStartOkMessage').modal('hide');
+                                        $('#loadingModal').modal('show');
+
+                                        $.ajax({
+                                            url: '/Home/StartOk',
+                                            type: 'POST',
+                                            success: function (data) {
+                                                $('#loaderAnim').hide();
+                                                $('#loadingModal').modal('hide');
+
+                                                if (data.success) {
+                                                    $('#resultModal').modal('show');
+                                                    $('#text').html(data.result).css("font-size", "11px");
+
+                                                    $('#loadingModal').modal('show'); // Yükleme modalını göster
+                                                    // Task Status butonuna tıklanınca sayfayı yönlendirme
+
+                                                } else {
+                                                    alert("İşlem başarısız: " + data.message);
+                                                    submitButton.prop('disabled', false);
+                                                }
+                                            },
+                                            error: function () {
+                                                $('#loaderAnim').hide();
+                                            }
+                                        });
+                                    });
+
+                                    $('#StartOkCancel').on('click', function () {
+                                        $('#dialogStartOkMessage').modal('hide');
+                                        window.location.href = '/Home/Setup';
+                                    });
+                                }
+                                else if (response.caseMessageYesNo) {
+                                    $('#dialogcaseConfirm .modal-title').text(response.infoTitle || 'Onay Gerekiyor'); // Başlık
+                                    $('#dialogcaseConfirm .modal-body p').text(response.caseMessageYesNo || 'Bir işlem gerçekleşiyor...'); // Mesaj
+                                    $('#dialogcaseConfirm').modal('show');
+
+                                    $('#dialogActivation').on('click', function () {
+                                        $('#dialogcaseConfirm').modal('hide'); // Onay modalını kapat
+                                        $('#loadingModal').modal('show'); // Yükleme modalını göster
+
+                                        $.ajax({
+                                            url: '/Home/GetConfirm',
+                                            type: 'POST',
+                                            success: function (data) {
+                                                $('#loaderAnim').hide(); // Yüklenme animasyonunu gizle
+                                                $('#loadingModal').modal('hide'); // Yükleme modalını kapat
+
+                                                if (data.success) {
+                                                    $('#resultModal').modal('show'); // Sonuç modalını göster
+                                                    var sonucLabel = $("#text");
+                                                    var sonucText = data.result;
+                                                    sonucLabel.html(sonucText); // Gelen sonucu yerleştir
+                                                    sonucLabel.css("font-size", "11px");
+
+                                                    // Sonuç modalının z-index değerini artır
+                                                    $('#resultModal').css('z-index', '1055'); // DataTable'dan daha yüksek bir z-index veriyoruz
+
+                                                    $('#loadingModal').modal('show'); // Yükleme modalını göster
+                                                    // 5 saniye bekleme süresi
+                                                    // Task Status butonuna tıklanınca sayfayı yönlendirme
+                                                    submitButton.prop('disabled', false);
+                                                } else {
+                                                    alert("İşlem başarısız: " + data.message);
+                                                    submitButton.prop('disabled', false);
+                                                }
+                                            },
+                                            error: function (data) {
+                                                $('#loaderAnim').hide(); // Yüklenme animasyonunu gizle
+                                            }
+                                        });
+                                    });
+
+                                    $('#cancelActivation').on('click', function () {
+                                        $('#dialogcaseConfirm').modal('hide');
+                                        window.location.href = '/Home/Setup';
+                                    });
+                                }
+                                else if (response.caseMessageYesNo2) {  // caseMessageYesNo2 kontrolü
+                                    $('#dialogcaseConfirm2 .modal-title').text(response.infoTitle || 'Onay Gerekiyor');
+                                    $('#dialogcaseConfirm2 .modal-body p').text(response.caseMessageYesNo2 || 'Bir işlem gerçekleşiyor...');
+                                    $('#dialogcaseConfirm2').modal('show');
+
+                                    $('#dialogActivation2').on('click', function () {
+                                        $('#dialogcaseConfirm2').modal('hide');
+                                        $('#loadingModal').modal('show');
+
+                                        $.ajax({
+                                            url: '/Home/GetConfirm2',
+                                            type: 'POST',
+                                            success: function (data) {
+
+                                                $('#loadingModal').modal('hide');
+                                                if (data.success) {
+                                                    $('#resultModal2').modal('show');
+                                                    $('#text').html(data.result).css("font-size", "11px");
+                                                    // Task Status butonuna tıklanınca sayfayı yönlendirme
+                                                    submitButton.prop('disabled', false);
+                                                } else {
+                                                    alert("İşlem başarısız: " + data.message);
+                                                    submitButton.prop('disabled', false);
+                                                }
+                                            },
+                                            error: function () {
+                                                $('#loadingModal').modal('hide');
+                                                alert("Bir hata oluştu.");
+                                            }
+                                        });
+                                    });
+
+                                    $('#cancelActivation2').on('click', function () {
+                                        $('#dialogcaseConfirm2').modal('hide');
+                                        window.location.href = '/Home/Setup';
+                                    });
+                                } else {
+                                    alert("İşlem başarısız: " + response.message);
+                                    submitButton.prop('disabled', false);
+                                }
+                            },
+                            error: function () {
+                                // Hata mesajını göster
+                                alert("@Resources.L349" + response.error);
+                            }
+                        });
+                    });
+                }
+                table.ajax.reload();
+            }
+
+            // Butona tıklama olayı ekle
+            $('#responsive-datatable').on('click', '.edit-button', function () {
+                var row = $(this).closest('tr');
+                row.find(".edit-button").hide();
+                row.find(".save-button, .cancel-button").show();
+
+                // GSM No ve Seri Numarası değiştirilemez
+                row.find("td:nth-child(2), td:nth-child(9)").attr("contenteditable", "false").addClass("edit-mode");
+
+                // Diğer alanları düzenlenebilir yap
+                row.find("td:nth-child(3), td:nth-child(4), td:nth-child(5), td:nth-child(6), td:nth-child(7), td:nth-child(8)").attr("contenteditable", "true").addClass("edit-mode");
+
+                // DHCP Status için dropdown ekleyelim
+                var dhcpStatusCell = row.find("td:nth-child(5)"); // DHCP_Status'ı doğru hücrede gösteriyoruz
+                var currentStatus = dhcpStatusCell.text().trim() === "Enable" ? 1 : 0; // "Enable" ise 1, "Disable" ise 0
+                var select = '<select class="form-control" id="dhcpStatus"><option value="0">Disable</option><option value="1">Enable</option></select>';
+                dhcpStatusCell.html(select);
+                dhcpStatusCell.find("#dhcpStatus").val(currentStatus); // Seçili durumu ayarlama
+
+                // Orijinal değerleri sakla
+                row.find("td:not(:last-child)").each(function () {
+                    var originalValue = $(this).text();
+                    $(this).data('original-value', originalValue);
+                });
+
+                // DHCP Status hücresinin orijinal değerini de sakla
+                dhcpStatusCell.data('original-value', currentStatus === 1 ? "Enable" : "Disable");
+            });
+
+            // Cancel butonuna tıklama olayı
+            $('#responsive-datatable').on('click', '.cancel-button', function () {
+                var row = $(this).closest('tr');
+                row.find(".edit-button").show();
+                row.find(".save-button, .cancel-button").hide();
+
+                // Orijinal değerleri geri yükle
+                row.find("td:not(:last-child)").each(function () {
+                    var originalValue = $(this).data('original-value');
+                    $(this).text(originalValue);
+                });
+
+                // Düzenlenebilirliği kaldır
+                row.find("td").attr("contenteditable", "false").removeClass("edit-mode");
+
+                // DHCP Status hücresini geri al
+                var dhcpStatusCell = row.find("td:nth-child(5)");
+                var originalStatus = dhcpStatusCell.data('original-value').trim();
+                dhcpStatusCell.text(originalStatus); // Orijinal durumu metin olarak ayarla
+            });
+
+            // Satırdaki hücreye özel hata mesajı göstermek için güncellenmiş fonksiyon
+            function showValidationMessage(cell, message) {
+                cell.text(message).css({
+                    "color": "red",      // Hata mesajını kırmızı renkte göster
+                    "font-weight": "bold" // Vurgulu yaparak dikkat çek
+                });
+            }
+
+            // Save butonuna tıklanınca işlem başlatılır
+            $('#responsive-datatable').on('click', '.save-button', function () {
+                var row = $(this).closest('tr');
+                var dhcpStatus = row.find("#dhcpStatus").val();
+                var rowData = {
+                    ID: $(this).data('row-id'),
+                    GMS_No: row.find("td:nth-child(2)").text(),
+                    APN_Name: row.find("td:nth-child(3)").text(),
+                    LAN_IP: row.find("td:nth-child(4)").text(),
+                    DHCP_Status: dhcpStatus,
+                    DHCP_Start: dhcpStatus == 1 ? row.find("td:nth-child(6)").text() : "",
+                    DHCP_User: dhcpStatus == 1 ? row.find("td:nth-child(7)").text() : "",
+                    LAN_Subnet: row.find("td:nth-child(8)").text(),
+                    Serial_no: row.find("td:nth-child(9)").text()
+                };
+
+                let hasEmptyField = false;
+
+                // APN Name, LAN IP ve LAN Subnet boş kontrolü
+                if (!rowData.APN_Name) {
+                    showValidationMessage(row.find("td:nth-child(3)"), "APN Name boş olamaz.");
+                    hasEmptyField = true;
+                }
+                if (!rowData.LAN_IP) {
+                    showValidationMessage(row.find("td:nth-child(4)"), "LAN IP boş olamaz.");
+                    hasEmptyField = true;
+                } else if (!isValidIP(rowData.LAN_IP)) {
+                    showValidationMessage(row.find("td:nth-child(4)"), "Geçersiz LAN IP formatı! (192.168.x.x, 10.x.x.x veya 172.16.x.x - 172.31.x.x formatında olmalı.)");
+                    hasEmptyField = true;
+                }
+                if (!rowData.LAN_Subnet) {
+                    showValidationMessage(row.find("td:nth-child(8)"), "LAN Subnet boş olamaz.");
+                    hasEmptyField = true;
+                }
+
+                if (dhcpStatus == 1) {
+                    const lanIpParts = rowData.LAN_IP.split('.').map(Number);
+                    const startIpParts = rowData.DHCP_Start.split('.').map(Number);
+                    const countIpParts = rowData.DHCP_User.split('.').map(Number);
+
+                    if (!rowData.DHCP_Start) {
+                        showValidationMessage(row.find("td:nth-child(6)"), "DHCP Start IP zorunludur.");
+                        hasEmptyField = true;
+                    } else if (startIpParts[0] !== lanIpParts[0] || startIpParts[1] !== lanIpParts[1] || startIpParts[2] !== lanIpParts[2]) {
+                        showValidationMessage(row.find("td:nth-child(6)"), "DHCP Start IP, LAN IP ile aynı ağda olmalıdır.");
+                        hasEmptyField = true;
+                    } else if (startIpParts[3] <= lanIpParts[3]) {
+                        showValidationMessage(row.find("td:nth-child(6)"), `DHCP Start IP, LAN IP'den büyük olmalıdır. Örnek: ${lanIpParts[0]}.${lanIpParts[1]}.${lanIpParts[2]}.${lanIpParts[3] + 1}`);
+                        hasEmptyField = true;
+                    }
+
+                    if (!rowData.DHCP_User) {
+                        showValidationMessage(row.find("td:nth-child(7)"), "DHCP IP Count zorunludur.");
+                        hasEmptyField = true;
+                    } else if (countIpParts[0] !== startIpParts[0] || countIpParts[1] !== startIpParts[1] || countIpParts[2] !== startIpParts[2]) {
+                        showValidationMessage(row.find("td:nth-child(7)"), "DHCP Count IP, LAN IP ile aynı ağda olmalıdır.");
+                        hasEmptyField = true;
+                    } else {
+                        const minCountIp = startIpParts[3] + 1;
+                        const maxCountIp = 255;
+                        if (countIpParts[3] < minCountIp || countIpParts[3] > maxCountIp) {
+                            showValidationMessage(row.find("td:nth-child(7)"), `DHCP Count, ${startIpParts[0]}.${startIpParts[1]}.${startIpParts[2]}.${minCountIp} ile ${startIpParts[0]}.${startIpParts[1]}.${startIpParts[2]}.${maxCountIp} arasında olmalıdır.`);
+                            hasEmptyField = true;
+                        }
+                    }
+                }
+
+                if (hasEmptyField) return;
+
+                // AJAX kaydetme işlemi
+                $.ajax({
+                    url: '/Home/SaveAutoconfData',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(rowData),
+                    success: function (response) {
+                        if (response.success) {
+                            $('#customModal2').modal('show');
+                            table.ajax.reload();
+                        } else {
+                            showValidationMessage(row.find("td:nth-child(3)"), response.message); // Hata mesajı göster
+                        }
+                    },
+                    error: function () {
+                        showValidationMessage(row.find("td:nth-child(3)"), "Bir hata oluştu."); // Hata mesajı göster
+                    }
+                });
+
+                row.find("td").attr("contenteditable", "false").removeClass("edit-mode");
+                row.find(".save-button, .cancel-button").hide();
+                row.find(".edit-button").show();
+            });
+            // IP format kontrolü için fonksiyon
+            function isValidIP(ip) {
+                const ipPattern = /^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+                return ipPattern.test(ip);
+            }
+            // Delete düğmesine tıklanınca
+            $('#responsive-datatable').on('click', '.delete-button', function () {
+                // GMS_No değerini sakla
+                var gmsNo = $(this).closest('tr').find("td:nth-child(2)").text(); // GMS_No'yu al
+                $('#btnConfirmDelete').data('gms-no', gmsNo); // GMS_No'yu onay butonuna ekle
+                $('#deleteConfirmationModal').modal('show'); // Modalı göster
+            });
+
+            // Onayla düğmesine tıklanınca
+            $('#btnConfirmDelete').click(function () {
+                var gmsNo = $(this).data('gms-no'); // GMS_No'yu al
+
+                $.ajax({
+                    url: '/Home/DeleteData',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({ GMS_No: gmsNo }),
+                    success: function (response) {
+                        alert(response.message);
+                        $('#deleteConfirmationModal').modal('hide');
+                        // Başarılı silme modalını aç
+                        $('#deleteSuccessModal').modal('show'); // Silme işlemi başarılıysa başka bir modal aç
+                    },
+                    error: function () {
+                        console.log('Silme işleminde hata oluştu.');
+                        $('#deleteConfirmationModal').modal('hide');
+                    }
+                });
+                table.ajax.reload();
+            });
+
+            // DataTable'ı yeniden yükle
+
+        });
+    });
+</script>
+<!--#endregion-->
+<!--#region Tarih Formatlama Script-->
+<script>
+    function formatUnixTimestamp(unixTimestamp) {
+        // Unix zaman damgasını milisaniyeden saniyeye çevirin
+        var seconds = unixTimestamp / 1000;
+
+        // Unix zaman damgasını JavaScript tarih nesnesine dönüştürün
+        var date = new Date(seconds * 1000);
+
+        var formattedDate = date.toLocaleString("en-US", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+        });
+        return formattedDate;
+    }
+</script>
+<!--#endregion-->
+<!--#region Gövde-->
+<div class="main-content app-content mt-0">
+    <div class="side-app">
+        <!-- CONTAINER -->
+        <div class="main-container container-fluid">
+            <!-- PAGE-HEADER -->
+            <div class="page-header">
+            </div>
+            <!-- PAGE-HEADER END -->
+            <!-- ROW-2 -->
+            <div class="row justify-content-center">
+                <div class="col-sm-12 col-md-12 col-lg-12 col-xl-5">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title text-center text-blue" style="font-size:22px">@Resources.L326</h3>
+                        </div>
+                        <span>
+                            &nbsp;
+                            <input id="opendata" style="margin-bottom: 10px; margin-inline-start: 4%" class="text-white btn btn-open-modal btn-primary btn info" type="button" value="@Resources.L304">
+                        </span>
+                        <div class="modal-body">
+                            <label class="control-label">@Resources.L106</label>
+                            @Html.DropDownListFor(x => x.SelectedSeriNoID, ViewBag.SeriNo as SelectList, @Resources.L120, htmlAttributes: new { @class = "dropdown form-control select2", id = "SeriNo" })
+                            <label class="col-md-offset-1 error-label" style="color:red;" id="SeriNoID">@ViewBag.SeriNoID</label>
+                            <br />
+                            <label for="newGsmNo">GSM NO:</label>
+                            <input type="text" id="newGsmNo" class="form-control" placeholder="" readonly style="background-color: white;">
+                        </div>
+                        <div class="modal-body">
+                            <label for="newiAPN_Name">APN Name:</label>
+                            <input type="text" id="newiAPN_Name" class="form-control">
+                        </div>
+                        <div class="modal-body">
+                            <label for="newiLanIp">LAN IP:</label>
+                            <input type="text" id="newiLanIp" class="form-control" placeholder="">
+                        </div>
+                        <div class="modal-body">
+                            <label for="newiLanSubnet">LAN Subnet [255.  .  .]:</label>
+                            <input type="text" id="newiLanSubnet" class="form-control" placeholder="">
+                        </div>
+                        <div class="modal-body">
+                            <label for="newiDhcpStatus">DHCP Status:</label>
+                            <select id="newiDhcpStatus" class="form-control">
+                                <option value="0">Disable</option>
+                                <option value="1">Enable</option>
+                            </select>
+                        </div>
+                        <div class="modal-body" id="dhcpFieldsContainer" style="display:none;">
+                            <div id="dhcpStartContainer">
+                                <label for="newiDhcpStart">DHCP Start IP:</label>
+                                <input type="text" id="newiDhcpStart" class="form-control" placeholder="">
+                            </div>
+                            <div id="dhcpUserContainer">
+                                <label for="newiDhcpUser">DHCP End IP:</label>
+                                <input type="text" id="newiDhcpUser" class="form-control" placeholder="">
+                            </div>
+                        </div>
+                        <div class="modal-body">
+                            <label for="newiRemark">@Resources.L385:</label>
+                            <input type="text" id="newiRemark" class="form-control" placeholder="">
+                            <label class="Error" style="color: red;"></label>
+                            <div class="col-md-6">
+                                <button type="button" class="btn btn-primary" id="btnSaveData">@Resources.L294</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            &nbsp;&nbsp;&nbsp;
+            <div class="modal fade" id="resultModal1" tabindex="-1" role="dialog" aria-labelledby="resultModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="resultModalLabel">@Resources.L373</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div id="text">
+                            @if (!string.IsNullOrEmpty(ViewBag.Sonuc))
+                            {
+                                var lines = ViewBag.Sonuc.ToString().Split(new[] { "<br />" }, StringSplitOptions.None);
+
+                                foreach (var line in lines)
+                                {
+                                    <span id="span">@Html.Raw(line)</span>
+                                }
+                            }
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn close-button btn-secondary" data-bs-dismiss="modal">@Resources.L261</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal fade" id="resultModal2" tabindex="-1" role="dialog" aria-labelledby="resultModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="resultModalLabel">@Resources.L373</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div id="text">
+                            @if (!string.IsNullOrEmpty(ViewBag.Sonuc))
+                            {
+                                var lines = ViewBag.Sonuc.ToString().Split(new[] { "<br />" }, StringSplitOptions.None);
+
+                                foreach (var line in lines)
+                                {
+                                    <span id="span">@Html.Raw(line)</span>
+                                }
+                            }
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn close-button btn-secondary" data-bs-dismiss="modal">@Resources.L261</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- CONTAINER END -->
+            <div class="modal fade" id="dataTableModalData" tabindex="-1" role="dialog" aria-labelledby="dataTableModalLabel" aria-hidden="true">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="dataTableModalLabel">@Resources.L351</h5>
+                            <button aria-label="Close" class="btn-close close-button" data-bs-dismiss="modal" type="button" id="closeModal" style="color:red"> <i class="fas fa-times"></i></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered text-nowrap border-bottom" id="responsive-datatable">
+                                    <thead>
+                                        <tr>
+                                            <th><input type="checkbox" id="select-all"></th>
+                                            <th class="wd-15p border-bottom-0">GSM NO</th>
+                                            <th class="wd-15p border-bottom-0">APN Name</th>
+                                            <th class="wd-15p border-bottom-0">Lan IP</th>
+                                            <th class="wd-15p border-bottom-0">DHCP Status</th>
+                                            <th class="wd-15p border-bottom-0">DHCP Start</th>
+                                            <th class="wd-15p border-bottom-0">DHCP User</th>
+                                            <th class="wd-15p border-bottom-0">Lan Subnet</th>
+                                            <th class="wd-15p border-bottom-0">Ricon SN</th>
+                                            <th class="wd-15p border-bottom-0">Date Time</th>
+                                            <th class="wd-15p border-bottom-0">@Resources.L385</th>
+                                            <th class="wd-15p border-bottom-0">Edit</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- DataTable satırları doldurulacak -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn close-button btn-secondary" data-bs-dismiss="modal">@Resources.L261</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- Loader Modalı Burada -->
+            <div id="loadingModal" class="modal" tabindex="-1" data-bs-backdrop="static">
+                <div class="modal-dialog modal-sm modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <button type="button" class="btn-close fa fa-close" style="color:red" data-bs-dismiss="modal" aria-label="Close"></button> <!-- Çarpı butonu -->
+                        </div>
+                        <div class="modal-body text-center">
+                            <p>@Resources.L374</p>
+
+                            <div class="lds-ring" id="loaderAnim">
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn close-button btn-secondary" id="closeLoader" data-bs-dismiss="modal">@Resources.L261</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--#endregion-->
+<!--#region MODAL DIV-->
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmationModalLabel">@Resources.L292</h5>
+                <button aria-label="Close" class="btn-close close-button" data-bs-dismiss="modal" type="button" id="closeModal" style="color:red">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Resources.L324
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-danger" id="btnConfirmDelete">@Resources.L279</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeDeleteModal">@Resources.L280</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--#endregion-->
+<!--#region Başarılı silme için başka bir modal -->
+<div class="modal fade" id="deleteSuccessModal" tabindex="-1" role="dialog" aria-labelledby="deleteSuccessModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteSuccessModalLabel">@Resources.L292</h5>
+                <button aria-label="Close" class="btn-close" data-bs-dismiss="modal" type="button" style="color:red">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                @Resources.L299
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@Resources.L261</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="customModal2" tabindex="-1" role="dialog" aria-labelledby="customModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="customModalLabel">@Resources.L336</h5>
+                <button aria-label="Close" class="btn-close close-button" data-bs-dismiss="modal" type="button" id="closeModal" style="color:red">   <i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body">@Resources.L332</div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeCustomModal2">@Resources.L261</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="customModal" tabindex="-1" role="dialog" aria-labelledby="customModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="customModalLabel"></h5>
+                <button aria-label="Close" class="btn-close close-button" data-bs-dismiss="modal" type="button" id="closeModal" style="color:red">   <i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" id="closeCustomModal">@Resources.L261</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="customModal1" tabindex="-1" role="dialog" aria-labelledby="customModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="customModalLabel">@Resources.L201</h5>
+                <button aria-label="Close" class="btn-close close-button" data-bs-dismiss="modal" type="button" id="closeModal" style="color:red">   <i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-body"></div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" id="closeCustomModal1">@Resources.L261</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--#region Hata Modalı-->
+<!--#endregion-->
+<div class="modal" id="deleteSuccessModal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+                <h4 class="modal-title">@Resources.L336</h4>
+                <button aria-label="Close" class="btn-close close-button" data-bs-dismiss="modal" type="button" id="closeDeleteSuccessModal" style="color:red"><i class="fas fa-times"></i></button>
+            </div>
+            <!-- Modal body -->
+            <div class="modal-body">
+                @Resources.L331
+            </div>
+            <!-- Modal footer -->
+            <div class="modal-footer">
+                <button type="button" class="btn close-button btn-secondary" data-bs-dismiss="modal">@Resources.L261</button>
+            </div>
+        </div>
+    </div>
+</div>
+<!--#endregion-->
+<!--#region Seri Numarası ve GSM Getirme-->
+<script>
+    $(document).ready(function () {
+        // SeriNo dropdown'ını etkinleştir
+        $('#SeriNo').select2({
+            minimumInputLength: 3,
+            ajax: {
+                url: "/Home/GetFilteredSeriNoList", // Seri no listesi alma
+                dataType: "JSON",
+                quietMillis: 100,
+                data: function (params) {
+                    return {
+                        selectedValue: params.term
+                    };
+                },
+                processResults: function (data, params) {
+                    var options = [];
+                    if (data) {
+                        $.each(data, function (index, item) {
+                            options.push({
+                                id: item.Value,
+                                text: item.Text,
+                                deviceType: item.Device_Type // Cihaz tipini de ekliyoruz
+                            });
+                        });
+                    }
+
+                    return {
+                        results: options
+                    };
+                }
+            }
+        }).on('select2:select', function (e) {
+            var selectedValue = e.params.data.id;
+            var deviceType = e.params.data.deviceType; // Seçilen cihazın tipini al
+
+            // Seçilen SeriNo ile GSM No'yu getir
+            $.ajax({
+                url: "/Home/GetGsmNoBySeriNo", // GSM numarasını al
+                type: "GET",
+                data: { seriNo: selectedValue },
+                success: function (data) {
+                    $('#newGsmNo').val(data.gsmNo); // GSM no'yu input'a yaz
+                },
+                error: function () {
+                    $('#newGsmNo').val(''); // Hata durumunda boş bırak
+                }
+            });
+
+            // Cihaz tipine göre mevcut LAN IP alanını göster veya gizle
+            if (deviceType === 'M') {
+                $('#existingLanIpContainer').show(); // "M" ise göster
+            } else {
+                $('#existingLanIpContainer').hide(); // Diğer durumlarda gizle
+            }
+        });
+    });
+</script>
+<!--#endregion-->
+<!--#region Modal Kapatma Scripti-->
+<script>
+    document.getElementById("closeAddModal").addEventListener("click", function () {
+        $('#addModal').modal('hide');
+    });
+
+    document.getElementById("closeDeleteModal").addEventListener("click", function () {
+        $('#deleteConfirmationModal').modal('hide');
+    });
+
+    document.getElementById("closeCustomModal").addEventListener("click", function () {
+        $('#customModal').modal('hide');
+    });
+    document.getElementById("closeCustomModal1").addEventListener("click", function () {
+        $('#customModal1').modal('hide');
+    });
+    document.getElementById("closeCustomModal2").addEventListener("click", function () {
+        $('#customModal2').modal('hide');
+
+        document.getElementById("closeLoader").addEventListener("click", function () {
+            $('#loadingModal').modal('hide');
+            submitButton.on('click', function () {
+                $(this).prop('disabled', true);
+            });
+            document.getElementById("closeModal").addEventListener("click", function () {
+                $('#dataTableModalData').modal('hide');
+                // Seçilen satırları temizle ve DataTable'ı yenile
+                $('.row-checkbox:checked').prop('checked', false); // Tüm checkbox'ları temizle
+                table.ajax.reload(); // DataTable'ı yenile
+            });
+</script>
+<!--#endregion-->
+<!--#region DİV-->
+<div id="dialogStartOkMessageUpdate" class="modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@ViewBag.InfoTitle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>@ViewBag.StartOKMessageUpdate</p>
+            </div>
+            <div class="modal-footer">
+
+                <button type="button" class="btn btn-primary" id="confirmActivation">@Resources.L279</button>
+                <button type="button" class="btn btn-secondary" id="cancelUpdate" data-bs-dismiss="modal">@Resources.L280</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dialogStartOkMessage" class="modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@ViewBag.InfoTitle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>@ViewBag.StartOKMessage</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="startOkActivation">@Resources.L279</button>
+                <button type="button" class="btn btn-secondary" id="StartOkCancel" data-bs-dismiss="modal">@Resources.L280</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dialogStartOkMessage2" class="modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@ViewBag.InfoTitle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>@ViewBag.StartOKMessage2</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="startOkActivation">@Resources.L279</button>
+                <button type="button" class="btn btn-secondary" id="StartOkCancel" data-bs-dismiss="modal">@Resources.L280</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dialogcaseConfirm" class="modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@ViewBag.InfoTitle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>@ViewBag.CaseMessageYesNo</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="dialogActivation">@Resources.L279</button>
+                <button type="button" class="btn btn-secondary" id="cancelActivation" data-bs-dismiss="modal">@Resources.L280</button>
+            </div>
+        </div>
+    </div>
+</div>
+&nbsp;&nbsp;&nbsp;&nbsp;
+<div id="dialogcaseConfirm2" class="modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@ViewBag.InfoTitle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>@ViewBag.CaseMessageYesNo2</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="dialogActivation2">@Resources.L279</button>
+                <button type="button" class="btn btn-secondary" id="cancelActivation2" data-bs-dismiss="modal">@Resources.L280</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dialogcaseOk" class="modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@ViewBag.InfoTitle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>@ViewBag.CaseMessageOK</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="closeActivation">@Resources.L279</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="dialogsms" class="modal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">@ViewBag.InfoTitle</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>@ViewBag.SmsMessage</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" id="closeSms">@Resources.L352</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!--#endregion-->

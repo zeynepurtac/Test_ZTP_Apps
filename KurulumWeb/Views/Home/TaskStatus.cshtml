@@ -1,0 +1,161 @@
+﻿@using KurulumWeb.Resources
+@model KurulumWeb.Models.AllModel
+@{
+    ViewBag.Title = "Task Status";
+    Layout = "~/Views/Shared/RiconAdminLayoutPage.cshtml";
+    var culture = System.Threading.Thread.CurrentThread.CurrentUICulture.Name.ToLowerInvariant();
+}
+
+<head>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <link href="~/assets/Setup.css" rel="stylesheet" />
+</head>
+<!--#region Style-->
+<style>
+    .btn-transparent {
+        background-color: transparent; /* Arka plan rengi şeffaf */
+        border: 1px solid #ccc; /* Çerçeve rengi */
+        color: #333; /* İkon ve metin rengi */
+    }
+
+        .btn-transparent:hover {
+            background-color: #f0f0f0; /* Hover durumunda arka plan rengi */
+            border-color: #888; /* Hover durumunda çerçeve rengi */
+        }
+</style>
+<!--#endregion-->
+<!--#region Tablo JS-->
+<script>
+    $(document).ready(function () {
+        var table = $('#responsive-datatable').DataTable({
+            serverSide: true,
+            processing: true,
+            ajax: {
+                url: '/Home/GetDeviceSetupData',
+                type: 'POST',
+                data: function (d) {
+                    d.draw = d.draw;
+                    d.start = d.start;
+                    d.length = d.length;
+                    d.search = d.search.value; // Arama kutusundaki değer
+                }
+            },
+            columns: [
+                { data: "GMS_No" },
+                { data: "Serial_no" },
+                { data: "Datetime" },
+                { data: "Status" }
+            ],
+            language: {
+                search: "@Resources.L397",
+                lengthMenu: "@Resources.L399" +" "+ "_MENU_",
+                info:"@Resources.L400 _TOTAL_ @Resources.L401 _START_ @Resources.L395 _END_ @Resources.L402",
+                paginate: {
+                     previous: "@Resources.L403",
+                     next: "@Resources.L404"
+                }
+            },
+            pageLength: 10, // Varsayılan olarak sayfada gösterilecek kayıt sayısı
+            lengthMenu: [10, 25, 50, 100], // Kullanıcıya gösterilecek sayfa seçenekleri
+            rowCallback: function (row, data, index) {
+                if (index % 2 === 0) {
+                    $(row).css('background-color', 'white');
+                } else {
+                    $(row).css('background-color', 'lightgrey');
+                }
+            },
+            initComplete: function () {
+                // Yenile butonunu oluştur
+                var refreshButton = $('<button>', {
+                    id: 'refresh-button',
+                    class: 'btn btn-transparent', // Renksiz buton
+                    style: 'border: 1px solid #ccc; margin-left: 10px;' // Çerçeve ve sol boşluk ekle
+                }).html('<i class="fa fa-refresh"></i>'); // İkonu ekle
+
+                // Arama kutusunun yanına ekle
+                $(this.api().table().container()).find('.dataTables_filter').append(refreshButton);
+
+                // Yenile butonuna tıklandığında tabloyu yenile
+                refreshButton.on('click', function () {
+                    table.ajax.reload(); // Tabloyu yenile
+                });
+            }
+        });
+    });
+</script>
+<!--#endregion-->
+<!--#region Tarih ve Saat Formatı JS-->
+<script>
+    function formatUnixTimestamp(unixTimestamp) {
+        // Unix zaman damgasını milisaniyeden saniyeye çevirin
+        var seconds = unixTimestamp / 1000;
+
+        // Unix zaman damgasını JavaScript tarih nesnesine dönüştürün
+        var date = new Date(seconds * 1000);
+
+        var formattedDate = date.toLocaleString("en-US", {
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            second: "2-digit"
+        });
+        return formattedDate;
+    }
+</script>
+<!--#endregion-->
+<!--#region Gövde-->
+<div class="main-content app-content mt-0">
+    <div class="side-app">
+        <!-- CONTAINER -->
+        <div class="main-container container-fluid">
+            <!-- PAGE-HEADER -->
+            <div class="page-header"></div>
+            <!-- PAGE-HEADER END -->
+            <!-- ROW-2 -->
+            <div class="row">
+                <div class="col-12">
+                    <!-- Tam ekran için col-12 kullanıyoruz -->
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="card-body">
+                                <h3 class="card-title text-center text-blue" style="font-size:22px">@Resources.L326</h3>
+                            </div>
+                        </div>
+                        <div class="modal-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered text-nowrap border-bottom" id="responsive-datatable">
+                                    <thead>
+                                        <tr>
+                                            <th class="wd-15p border-bottom-0">GSM NO</th>
+                                            <th class="wd-15p border-bottom-0">Ricon SN</th>
+                                            <th class="wd-15p border-bottom-0">Date Time</th>
+                                            <th class="wd-15p border-bottom-0">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- DataTable satırları doldurulacak -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ROW-2 END -->
+            </div>
+            <!-- CONTAINER END -->
+        </div>
+    </div>
+</div>
+<!--#endregion--> 
